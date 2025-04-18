@@ -25,4 +25,42 @@ This project combines computer vision and tabular feature learning to bridge pla
 ---
 
 ## 📂 Project Structure
-Stomata2TranspireNet/ │ ├── data/ # Raw and processed data │ ├── images/ # Stomatal images │ ├── env_data/ # Environmental variables (CSV, JSON, etc.) │ └── processed/ # Combined & cleaned datasets │ ├── notebooks/ # Jupyter notebooks for exploration and training │ └── EDA.ipynb │ ├── src/ # Source code │ ├── models/ # CNN, MLP, fusion models │ │ └── transpire_net.py │ ├── dataloaders/ # Image & tabular data loaders │ ├── utils/ # Preprocessing, metrics, helpers │ └── train.py # Training pipeline │ ├── outputs/ # Saved models, logs, and predictions │ ├── models/ │ └── results/ │ ├── requirements.txt # Python dependencies ├── README.md └── LICENSE
+```bash
+project_name/
+│
+├── config/                 # Configuration files (YAML/JSON) for experiments
+│   └── config.yaml
+│
+├── data/                   # Raw and processed data
+│   ├── raw/
+│   └── processed/
+│
+├── datasets/               # Custom dataset classes or data loading scripts
+│   └── my_dataset.py
+│
+├── models/                 # Model definitions
+│   └── my_model.py
+│
+├── trainers/               # Training logic (loops, callbacks, etc.)
+│   └── train.py
+│
+├── evaluators/             # Evaluation metrics and validation logic
+│   └── evaluate.py
+│
+├── utils/                  # Utility functions (logging, visualization, etc.)
+│   ├── logger.py
+│   └── helpers.py
+│
+├── checkpoints/            # Saved model weights and training checkpoints
+│
+├── outputs/                # Predictions, evaluation reports, figures
+│
+├── experiments/            # Scripts to run specific experiments
+│   └── run_experiment_1.py
+│
+├── notebooks/              # Jupyter notebooks for exploration and visualization
+│
+├── requirements.txt        # Python dependencies
+├── README.md
+└── main.py                 # Entry point (e.g., CLI or overall controller)
+```

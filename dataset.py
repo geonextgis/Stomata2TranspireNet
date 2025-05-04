@@ -10,8 +10,8 @@ from torch.utils.data import Dataset
 
 class StomataDataset(Dataset):
     """
-    A PyTorch Dataset for loading RGB stomata images, their physiological metadata, and 
-    filtered, standardized weather data aligned by timestamp.
+    A PyTorch Dataset for loading RGB stomata images, physiological metadata,
+    and filtered, standardized weather data aligned by timestamp.
 
     Args:
         image_dir (str): Directory containing image files (.jpg).
@@ -32,7 +32,7 @@ class StomataDataset(Dataset):
 
         # Compute per-feature mean and std for normalization
         self.weather_mean = self.weather[self.weather_var].mean()
-        self.weather_std = self.weather[self.weather_var].std() + 1e-8  # to avoid divide-by-zero
+        self.weather_std = self.weather[self.weather_var].std() + 1e-8  # Avoid divide-by-zero
 
         # Only keep images that have matching metadata
         self.image_paths = [
@@ -44,7 +44,7 @@ class StomataDataset(Dataset):
         return len(self.image_paths)
 
     def __getitem__(self, idx):
-        # Load image
+        # Load and transform image
         image_path = self.image_paths[idx]
         image_name = os.path.basename(image_path)
         image = Image.open(image_path).convert('RGB')
@@ -53,8 +53,10 @@ class StomataDataset(Dataset):
 
         # Extract labels and timestamp
         meta_row = self.meta[self.meta['Photo_name'] == image_name]
-        label_gsw = meta_row['gsw'].values[0]
-        label_gbw = meta_row['gbw'].values[0]
+        label = torch.tensor(
+            [meta_row['gsw'].values[0], meta_row['gbw'].values[0]],
+            dtype=torch.float32
+        )
         image_datetime = pd.to_datetime(meta_row['DateTime'].values[0])
 
         # Get same-date weather data
@@ -63,17 +65,17 @@ class StomataDataset(Dataset):
         # Normalize weather variables
         weather_data[self.weather_var] = (weather_data[self.weather_var] - self.weather_mean) / self.weather_std
 
-        # Forward-fill after timestamp instead of zeroing
+        # Mask and forward-fill weather values after timestamp
         mask = weather_data['DateTime'] > image_datetime
         for var in self.weather_var:
             last_valid = weather_data.loc[~mask, var].iloc[-1] if not weather_data.loc[~mask].empty else 0
             weather_data.loc[mask, var] = last_valid
 
         # Convert to tensor
-        weather_tensor = torch.tensor(weather_data[self.weather_var].values, dtype=torch.float)
+        weather_tensor = torch.tensor(weather_data[self.weather_var].values, dtype=torch.float32)
 
-        return image, weather_tensor, label_gsw, label_gbw
-
+        return image, weather_tensor, label
+    
 
 if __name__ == '__main__':
     image_dir = r'D:\GITHUB\MSM-Research\Stomata2TranspireNet\data\raw\image'
